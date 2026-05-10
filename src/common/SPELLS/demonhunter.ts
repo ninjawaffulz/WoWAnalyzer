@@ -646,6 +646,11 @@ const spells = {
     name: 'Eradicate',
     icon: 'inv_12_dh_void_ability_eradicate',
   },
+  ERADICATE_BUFF: {
+    id: 1239524,
+    name: 'Eradicate',
+    icon: 'inv_12_dh_void_ability_eradicate',
+  },
   SHIFT: {
     id: 1234796,
     name: 'Shift',
@@ -660,6 +665,12 @@ const spells = {
     id: 1217605,
     name: 'Void Metamorphosis',
     icon: 'inv_112_ability_demonhunter_metamorphasisvoid',
+  },
+  // Collapsing Star Buff is the number of souls held while Void Metamorphosis is active
+  COLLAPSING_STAR_BUFF: {
+    id: 1227702,
+    name: 'Collapsing Star',
+    icon: 'inv_12_dh_void_ability_collapsingstar',
   },
   HUNGERING_SLASH_CAST: {
     id: 1239123,
@@ -685,6 +696,11 @@ const spells = {
     id: 1238495,
     name: 'Moment of Craving',
     icon: 'inv_ability_soulharvesterwarlock_demonicsoul',
+  },
+  FEAST_OF_SOULS_BUFF: {
+    id: 1232310,
+    name: 'Feast of Souls',
+    icon: 'inv_12_dh_void_ability_firstofsouls',
   },
   VOIDSTEP: {
     id: 1223157,

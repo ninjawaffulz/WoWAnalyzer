@@ -1235,7 +1235,7 @@ const SPELLS = {
     passive: false,
     name: 'Devour',
     gcd: {
-      duration: 1500,
+      duration: 600,
       hasted: true,
     },
     castTime: {

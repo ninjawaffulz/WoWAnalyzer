@@ -11,6 +11,7 @@ import Abilities from './modules/Abilities';
 import CollapsingStar from './modules/talents/CollapsingStar';
 import Guide from './Guide';
 import VoidMetamorphosisNormalizer from './normalizers/VoidMetamorphosisNormalizer';
+import EradicateCastNormalizer from './normalizers/EradicateCastNormalizer';
 import ViolentTransformation from './modules/talents/ViolentTransformation';
 import MomentOfCraving from './modules/talents/MomentOfCraving';
 import MassAcceleration from './modules/talents/MassAcceleration';
@@ -21,6 +22,7 @@ import Reap from './modules/spells/Reap';
 import Cull from './modules/spells/Cull';
 import VoidRay from './modules/talents/VoidRay';
 import VoidRayEventLinkNormalizer from './normalizers/VoidRayEventLinkNormalizer';
+import EradicateEventLinkNormalizer from './normalizers/EradicateEventLinkNormalizer';
 
 class CombatLogParser extends CoreCombatLogParser {
   static specModules = {
@@ -58,7 +60,9 @@ class CombatLogParser extends CoreCombatLogParser {
 
     // Normalizers
     voidMetamorphosisNormalizer: VoidMetamorphosisNormalizer,
+    eradicateCastNormalizer: EradicateCastNormalizer,
     voidRayEventLinkNormalizer: VoidRayEventLinkNormalizer,
+    EradicateEventLinkNormalizer: EradicateEventLinkNormalizer,
 
     // There's no throughput benefit from casting Arcane Torrent on cooldown
     arcaneTorrent: [ArcaneTorrent, { castEfficiency: null }] as const,

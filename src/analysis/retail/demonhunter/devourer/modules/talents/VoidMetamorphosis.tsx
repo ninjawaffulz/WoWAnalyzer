@@ -25,6 +25,7 @@ interface VoidMetamorphosisTracker {
   endTimestamp: number;
   totalCasts: number;
   totalCullCasts: number;
+  totalCollapsingStarCasts: number;
   smuggledToll: boolean;
 }
 
@@ -64,7 +65,11 @@ class VoidMetamorphosis extends Analyzer.withDependencies({
 
     this.addEventListener(Events.fightend, this.#onFightEndOrDeath);
 
-    this.addEventListener(Events.cast.by(SELECTED_PLAYER).spell(SPELLS.CULL), this.#onCast);
+    this.addEventListener(Events.cast.by(SELECTED_PLAYER).spell(SPELLS.CULL), this.#onCullCast);
+    this.addEventListener(
+      Events.cast.by(SELECTED_PLAYER).spell(SPELLS.COLLAPSING_STAR),
+      this.#onCollapsingStarCast,
+    );
   }
 
   #onVoidMetamorphosisCast(event: CastEvent) {
@@ -75,6 +80,7 @@ class VoidMetamorphosis extends Analyzer.withDependencies({
       endTimestamp: 0,
       totalCasts: 0,
       totalCullCasts: 0,
+      totalCollapsingStarCasts: 0,
       smuggledToll: smuggledToll,
     });
   }
@@ -90,7 +96,7 @@ class VoidMetamorphosis extends Analyzer.withDependencies({
     this.#castTrackers.at(-1)!.endTimestamp = event.timestamp;
   }
 
-  #onCast(cast: CastEvent) {
+  #onCullCast(cast: CastEvent) {
     if (!this.selectedCombatant.hasBuff(SPELLS.VOID_METAMORPHOSIS_BUFF)) {
       return;
     }
@@ -100,6 +106,15 @@ class VoidMetamorphosis extends Analyzer.withDependencies({
     }
   }
 
+  #onCollapsingStarCast(Cast: CastEvent) {
+    if (!this.selectedCombatant.hasBuff(SPELLS.VOID_METAMORPHOSIS_BUFF)) {
+      return;
+    }
+
+    if (Cast.ability.guid === SPELLS.COLLAPSING_STAR.id) {
+      this.#castTrackers.at(-1)!.totalCollapsingStarCasts += 1;
+    }
+  }
   get #buffHistory() {
     return this.selectedCombatant.getBuffHistory(SPELLS.VOID_METAMORPHOSIS_BUFF.id);
   }
@@ -148,6 +163,28 @@ class VoidMetamorphosis extends Analyzer.withDependencies({
     return { performance: cullPerformance, checklistItem: cullChecklistItem };
   }
 
+  #getCollapsingStarItem(cast: VoidMetamorphosisTracker): castBreakdownItem {
+    let collapsingStarPerformance = QualitativePerformance.Fail;
+    if (cast.totalCollapsingStarCasts >= 5) {
+      collapsingStarPerformance = QualitativePerformance.Perfect;
+    } else if (cast.totalCollapsingStarCasts >= 4) {
+      collapsingStarPerformance = QualitativePerformance.Good;
+    } else if (cast.totalCollapsingStarCasts >= 3) {
+      collapsingStarPerformance = QualitativePerformance.Ok;
+    }
+
+    const CollapsingStarChecklistItem: CooldownExpandableItem = {
+      label: (
+        <>
+          <SpellLink spell={SPELLS.COLLAPSING_STAR} /> casts
+        </>
+      ),
+      result: <PerformanceMark perf={collapsingStarPerformance} />,
+      details: <>{formatNumber(cast.totalCollapsingStarCasts)}</>,
+    };
+
+    return { performance: collapsingStarPerformance, checklistItem: CollapsingStarChecklistItem };
+  }
   #getActiveTimeItem(cast: VoidMetamorphosisTracker): castBreakdownItem {
     let activeTimePerformance = QualitativePerformance.Fail;
     const activeTimePercentageDuringWindow =
@@ -204,6 +241,10 @@ class VoidMetamorphosis extends Analyzer.withDependencies({
     performances.push(cullItem.performance);
     checklistItems.push(cullItem.checklistItem);
 
+    const collapsingStarItem = this.#getCollapsingStarItem(cast);
+    performances.push(collapsingStarItem.performance);
+    checklistItems.push(collapsingStarItem.checklistItem);
+
     if (this.#hungeringSlashTalented) {
       const smugglingItem = this.#getSmugglingItem(cast);
       performances.push(smugglingItem.performance);
@@ -223,22 +264,16 @@ class VoidMetamorphosis extends Analyzer.withDependencies({
         <p>
           During <SpellLink spell={TALENTS_DEMON_HUNTER.VOID_METAMORPHOSIS_TALENT} />,{' '}
           <ResourceLink id={RESOURCE_TYPES.FURY.id} /> is constantly consumed. Fight this process by
-          generating <ResourceLink id={RESOURCE_TYPES.FURY.id} /> using your abilities.{' '}
-          <SpellLink spell={TALENTS_DEMON_HUNTER.VOID_RAY_TALENT} />,{' '}
-          <SpellLink spell={TALENTS_DEMON_HUNTER.VOIDBLADE_TALENT} /> and{' '}
-          <SpellLink spell={TALENTS_DEMON_HUNTER.THE_HUNT_DEVOURER_TALENT} /> stop the fury
-          drain&mdash; use them on cooldown!
+          generating <ResourceLink id={RESOURCE_TYPES.FURY.id} /> through efficient use of your{' '}
+          <SpellLink spell={TALENTS_DEMON_HUNTER.MOMENT_OF_CRAVING_TALENT} /> proc and{' '}
+          <SpellLink spell={TALENTS_DEMON_HUNTER.ERADICATE_TALENT} /> ability.{' '}
+          <SpellLink spell={TALENTS_DEMON_HUNTER.VOID_RAY_TALENT} /> and{' '}
+          <SpellLink spell={SPELLS.COLLAPSING_STAR} /> stop the fury drain&mdash; use them on
+          cooldown!
           <div>
             In order to extend <SpellLink spell={TALENTS_DEMON_HUNTER.VOID_METAMORPHOSIS_TALENT} />{' '}
             the longest, it is mandatory to keep up near-perfect active time.
           </div>
-        </p>
-        <hr />
-        <p>
-          <SpellLink spell={TALENTS_DEMON_HUNTER.VOID_METAMORPHOSIS_TALENT} /> upgrades{' '}
-          <SpellLink spell={SPELLS.REAP} /> to <SpellLink spell={SPELLS.CULL} />. The latter becomes
-          uncommonly powerful and should be used as much as possible with 4{' '}
-          <SpellLink spell={SPELLS.SOUL_FRAGMENT_DEVOUR} /> or more.
         </p>
         {this.selectedCombatant.hasTalent(TALENTS_DEMON_HUNTER.HUNGERING_SLASH_TALENT) && (
           <>
