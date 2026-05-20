@@ -3,15 +3,18 @@ import {
   ApplyBuffEvent,
   ApplyBuffStackEvent,
   CastEvent,
+  DamageEvent,
   EventType,
   GetRelatedEvents,
   RemoveBuffEvent,
 } from 'parser/core/Events';
 import { Options } from 'parser/core/Module';
 import EventLinkNormalizer, { EventLink } from 'parser/core/EventLinkNormalizer';
+import { TALENTS_DEMON_HUNTER } from 'common/TALENTS/demonhunter';
 
 const SOUL_CONSUME_BUFFER = 500;
 
+const ERADICATE_DAMAGE = 'EradicateDamage';
 const MOMENT_OF_CRAVING_CONSUME = 'MomentOfCravingConsume';
 const ERADICATE_SOUL_CONSUMED_VOIDMETA = 'EradicateSoulConsumedVoidMeta';
 const ERADICATE_SOUL_CONSUME = 'EradicateSoulConsume';
@@ -50,6 +53,15 @@ const EVENT_LINKS: EventLink[] = [
     anyTarget: true,
     maximumLinks: 1,
   },
+  {
+    linkRelation: ERADICATE_DAMAGE,
+    referencedEventId: [SPELLS.ERADICATE.id, SPELLS.ERADICATE.id],
+    referencedEventType: EventType.Damage,
+    linkingEventId: TALENTS_DEMON_HUNTER.ERADICATE_TALENT.id,
+    linkingEventType: EventType.Cast,
+    forwardBufferMs: 250,
+    anyTarget: true,
+  },
 ];
 
 export default class EradicateEventLinkNormalizer extends EventLinkNormalizer {
@@ -85,5 +97,13 @@ export function getEradicateMomentOfCravingConsumption(event: CastEvent): Remove
     event,
     MOMENT_OF_CRAVING_CONSUME,
     (e): e is RemoveBuffEvent => e.type === EventType.RemoveBuff,
+  );
+}
+
+export function getEradicateDamageEvents(event: CastEvent): DamageEvent[] {
+  return GetRelatedEvents(
+    event,
+    ERADICATE_DAMAGE,
+    (e): e is DamageEvent => e.type === EventType.Damage,
   );
 }

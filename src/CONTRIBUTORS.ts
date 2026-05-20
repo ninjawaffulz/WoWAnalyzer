@@ -2942,3 +2942,16 @@ export const Baumritter: Contributor = {
   github: 'Baumritter',
   discord: 'baumritter',
 };
+export const Ninjawaffulz: Contributor = {
+  nickname: 'Ninjawaffulz',
+  github: 'ninjawaffulz',
+  discord: 'ninjawaffulz',
+  avatar: avatar('ninjawaffulz.png'),
+  mains: [
+    {
+      name: 'Ninjawaffulz',
+      spec: SPECS.DEVOURER_DEMON_HUNTER,
+      link: 'https://www.warcraftlogs.com/character/id/92984600',
+    },
+  ],
+};
